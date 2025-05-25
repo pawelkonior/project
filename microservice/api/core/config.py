@@ -1,6 +1,7 @@
 import os
 
 from pydantic_settings import BaseSettings
+from pydantic import Field
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,9 +22,14 @@ class Settings(BaseSettings):
     CORS_ALLOW_HEADERS: list[str] = ["*"]
     CORS_MAX_AGE: int = 600
 
+    RATE_LIMIT_ANON_REQUESTS: int = Field(default=30)
+    RATE_LIMIT_AUTH_REQUESTS: int = Field(default=100)
+    RATE_LIMIT_WINDOW_SECONDS: int = Field(default=60)
+
     @property
     def CORS_ALLOW_ORIGINS(self) -> list[str]:
         origins_str = os.getenv("CORS_ALLOW_ORIGINS", "*")
         return [origin.strip() for origin in origins_str.split(',')]
+
 
 settings = Settings()

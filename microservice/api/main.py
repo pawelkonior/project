@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-import time
+from fastapi import FastAPI
 
 from api import routers
 from core.config import settings
