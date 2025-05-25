@@ -35,7 +35,7 @@ class WidgetUpdate(WidgetBase):
     """Schema for updating a widget"""
     name: str | None = None
     description: str | None = None
-    price: Decimal | None = None
+    price: float | None = None
     quantity: PositiveInt | None = None
     category: str | None = None
 
