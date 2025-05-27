@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     RATE_LIMIT_AUTH_REQUESTS: int = Field(default=100)
     RATE_LIMIT_WINDOW_SECONDS: int = Field(default=60)
 
+    SSL_KEYFILE: str = os.getenv("SSL_KEYFILE")
+    SSL_CERTFILE: str = os.getenv("SSL_CERTFILE")
+
     @property
     def CORS_ALLOW_ORIGINS(self) -> list[str]:
         origins_str = os.getenv("CORS_ALLOW_ORIGINS", "*")
