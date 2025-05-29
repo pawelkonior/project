@@ -5,7 +5,7 @@ from core.database import widgets_collection
 from schemas.widget import WidgetCreate, Widget, WidgetUpdate
 
 
-async def create_widget(widget: WidgetCreate, owner_id: str = "abc") -> Widget:
+async def create_widget(widget: WidgetCreate, owner_id: str) -> Widget:
     """Create a new widget."""
     widget_dict = widget.model_dump()
     widget_dict["owner"] = owner_id
@@ -14,7 +14,6 @@ async def create_widget(widget: WidgetCreate, owner_id: str = "abc") -> Widget:
     result = await widgets_collection.insert_one(widget_dict)
     widget_dict["_id"] = result.inserted_id
 
-    # TODO: check validation errors
     return Widget.model_validate(widget_dict)
 
 

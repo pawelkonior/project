@@ -1,8 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Path, HTTPException, status
+from fastapi import APIRouter, Query, Path, HTTPException, status, Depends
 
+from core.rbac import get_current_active_user, require_permission
 from models.widget import create_widget, get_widget, get_widgets, update_widget, delete_widget, count_widgets
+from schemas.user import User, Permission
 from schemas.widget import WidgetCreate, Widget, WidgetUpdate
 
 router = APIRouter(
@@ -13,25 +15,48 @@ router = APIRouter(
 
 @router.post(
     "/",
-    response_model=Widget
+    response_model=Widget,
+    dependencies=[Depends(require_permission(Permission.CREATE_WIDGET))],
 )
-async def create_new_widget(widget: WidgetCreate) -> Widget:
+async def create_new_widget(
+        widget: WidgetCreate,
+        current_user: User = Depends(get_current_active_user)
+) -> Widget:
     """Create a new widget."""
-    return await create_widget(widget)
+    return await create_widget(widget, str(current_user.id))
 
 
 @router.get(
     "/",
-    response_model=list[Widget]
+    response_model=list[Widget],
+    summary="List all widgets for a given user.",
+    description="Retrieve paginated list of widgets for a given user. Optional filtering by category.",
+    dependencies=[Depends(require_permission(Permission.READ_WIDGET))],
+    responses={
+        status.HTTP_200_OK: {
+            "description": "List of widgets",
+            "model": list[Widget]
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Unauthorized. Authentication credentials were not provided.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated"
+                    }
+                }
+            }
+        }
+    }
 )
 async def read_widgets(
-        skip: Annotated[int, Query(ge=0)] = 0,
-        limit: Annotated[int, Query(ge=1, le=100)] = 10,
-        category: str | None = None,
-        current_user: str = "abc"
+        skip: Annotated[int, Query(ge=0, description="Number of rows to skip")] = 0,
+        limit: Annotated[int, Query(ge=1, le=100, description="Numbers of records to retrieve")] = 10,
+        category: Annotated[str | None, Query(description="Category name")] = None,
+        current_user: User = Depends(get_current_active_user)
 ):
     """Retrieve widgets with optional filtering."""
-    return await get_widgets(current_user, skip, limit, category)
+    return await get_widgets(str(current_user.id), skip, limit, category)
 
 
 @router.get(
