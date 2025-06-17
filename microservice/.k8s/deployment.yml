@@ -6,7 +6,7 @@ metadata:
   labels:
     app: widget-api
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: widget-api
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: widget-api
-          image: pawelkonior/fastapi:v4
+          image: fastapi:v10
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -30,7 +30,7 @@ spec:
             - name: MONGO_URI
               value: mongodb://mongodb:27017
             - name: REDIS_URI
-              value: redis://redis:6379/0
+              value: redis://redis
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:

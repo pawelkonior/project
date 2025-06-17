@@ -1,11 +1,12 @@
 from datetime import datetime
-from decimal import Decimal
-from typing import Any
+from typing import Any, Annotated
 
 from bson import ObjectId
-from pydantic import BaseModel, PositiveInt, model_validator, Field, ConfigDict, field_serializer
+from pydantic import BaseModel, PositiveInt, model_validator, Field, ConfigDict, field_serializer, BeforeValidator
 
 from utils.sanitizer import sanitize_string
+
+StrObjectId = Annotated[str, BeforeValidator(str)]
 
 
 class WidgetBase(BaseModel):
@@ -61,11 +62,11 @@ class Widget(WidgetBase):
         }
     )
 
-    id: ObjectId = Field(alias="_id")
+    id: StrObjectId = Field(alias="_id")
     owner: str
     created_at: datetime
     updated_at: datetime | None = None
 
-    @field_serializer("id")
-    def serialize_id(self, value: ObjectId) -> str:
-        return str(value)
+    # @field_serializer("id")
+    # def serialize_id(self, value: ObjectId) -> str:
+    #     return str(value)

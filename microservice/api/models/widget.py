@@ -24,8 +24,8 @@ async def create_widget(widget: WidgetCreate, owner_id: str) -> Widget:
     await delete_cache(owner_cache_key)
 
     widget_object = Widget.model_validate(widget_dict)
-    widget_cache_key = WIDGET_KEY.format(widget_object["_id"])
-    await set_cache(widget_cache_key, widget_object, settings.REDIS_TTL)
+    widget_cache_key = WIDGET_KEY.format(widget_dict["_id"])
+    await set_cache(widget_cache_key, widget_dict, settings.REDIS_TTL)
 
     return widget_object
 

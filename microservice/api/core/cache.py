@@ -49,7 +49,7 @@ async def get_cache(key: str) -> Any:
 
     try:
         return json.loads(value)
-    except (TypeError, json.JSONDecodeError):
+    except (TypeError, json.JSONDecodeError, UnicodeDecodeError):
         try:
             return pickle.loads(value)
         except pickle.PickleError:
@@ -58,7 +58,16 @@ async def get_cache(key: str) -> Any:
 
 async def delete_cache(key: str) -> int:
     redis_client = await get_redis()
-    return await redis_client.delete(key)
+
+    cursor = "0"
+    keys_to_delete = []
+    pattern = f"{key}*"
+    while cursor != 0:
+        cursor, keys = await redis_client.scan(cursor=cursor, match=pattern, count=1000)
+        keys_to_delete.extend(keys)
+    if keys_to_delete:
+        await redis_client.delete(*keys_to_delete)
+    return len(keys_to_delete)
 
 
 async def flush_cache() -> int:
