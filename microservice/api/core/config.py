@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017")
     MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "widget_db")
 
+    REDIS_URI: str = os.getenv("REDIS_URI", "redis://localhost:6379/0")
+    REDIS_TTL: int = int(os.getenv("REDIS_TTL", "3600"))
+
     SECRET_KEY: str = os.getenv("SECRET_KEY", "secret")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
