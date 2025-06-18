@@ -6,7 +6,7 @@ metadata:
   labels:
     app: widget-api
 spec:
-  replicas: 1
+  replicas: 5
   selector:
     matchLabels:
       app: widget-api
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: widget-api
-          image: fastapi:v10
+          image: fastapi:v11
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

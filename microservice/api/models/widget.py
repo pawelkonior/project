@@ -1,9 +1,11 @@
+import time
 from datetime import datetime, timezone
 from bson import ObjectId
 
 from core.cache import delete_cache, set_cache, get_cache
 from core.config import settings
 from core.database import widgets_collection
+from core.metrics import record_widget_operation, record_db_metrics
 from schemas.widget import WidgetCreate, Widget, WidgetUpdate
 
 WIDGET_KEY = "widget:{}"
@@ -13,11 +15,16 @@ WIDGETS_BY_CATEGORY_KEY = "widgets:owner:{}:category:{}"
 
 async def create_widget(widget: WidgetCreate, owner_id: str) -> Widget:
     """Create a new widget."""
+
+    record_widget_operation('create')
+
     widget_dict = widget.model_dump()
     widget_dict["owner"] = owner_id
     widget_dict["created_at"] = datetime.now(timezone.utc)
 
+    start_time = time.time()
     result = await widgets_collection.insert_one(widget_dict)
+    record_db_metrics('insert', 'widgets', time.time() - start_time)
     widget_dict["_id"] = result.inserted_id
 
     owner_cache_key = WIDGETS_BY_OWNER_KEY.format(owner_id)
